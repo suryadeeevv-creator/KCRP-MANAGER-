@@ -1,3 +1,4 @@
+import asyncio
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -5,15 +6,38 @@ from discord import app_commands
 CATEGORY_ID = 1525599685815832616
 
 STAFF_ROLE_IDS = [
-    1523613557424521290,  # Founder
-    1523613557424521288,  # Server Administrator
-    1523613557424521287,  # Server Management
-    1523897763484401806,  # Owner
-    1523613557424521292,  # Senior Admin
-    1523616970824482826,  # General Admin
-    1523613557424521289,  # Helper Admin
-    1523897469568680066,  # Co Owner
+    1523613557424521290,
+    1523613557424521288,
+    1523613557424521287,
+    1523897763484401806,
+    1523613557424521292,
+    1523616970824482826,
+    1523613557424521289,
+    1523897469568680066,
 ]
+
+
+class CloseTicketView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @discord.ui.button(
+        label="Close Ticket",
+        style=discord.ButtonStyle.danger,
+        emoji="🔒"
+    )
+    async def close_button(
+        self,
+        interaction: discord.Interaction,
+        button: discord.ui.Button
+    ):
+        await interaction.response.send_message(
+            "🔒 Closing ticket in 5 seconds...",
+            ephemeral=True
+        )
+
+        await asyncio.sleep(5)
+        await interaction.channel.delete()
 
 
 class TicketView(discord.ui.View):
@@ -70,7 +94,10 @@ class TicketView(discord.ui.View):
             color=0x57F287
         )
 
-        await channel.send(embed=embed)
+        await channel.send(
+            embed=embed,
+            view=CloseTicketView()
+        )
 
         await interaction.response.send_message(
             f"✅ Ticket created: {channel.mention}",
@@ -90,17 +117,15 @@ class Tickets(commands.Cog):
 
         embed = discord.Embed(
             title="🎫 KCRP Support",
-            description=(
-                "Click the button below to create a support ticket."
-            ),
+            description="Click the button below to create a support ticket.",
             color=0x57F287
         )
 
         await interaction.response.send_message(
             embed=embed,
-                        view=TicketView()
+            view=TicketView()
         )
+
 
 async def setup(bot):
     await bot.add_cog(Tickets(bot))
-    

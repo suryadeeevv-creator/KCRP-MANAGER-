@@ -170,27 +170,26 @@ await create_ticket_db(
 )
 
 embed = discord.Embed(
-            title="🎫 Ticket Created",
-            description=(
-                f"Hello {interaction.user.mention},\n\n"
-                "Your support ticket has been created successfully.\n\n"
-                "Please describe your issue in detail.\n\n"
-                "A member of the **KCRP Staff Team** will assist you as soon as possible.\n\n"
-                "Thank you for your patience. 💚"
-            ),
-            color=0x57F287
-        )
+    title="🎫 Ticket Created",
+    description=(
+        f"Hello {interaction.user.mention},\n\n"
+        "Your support ticket has been created successfully.\n\n"
+        "Please describe your issue in detail.\n\n"
+        "A member of the **KCRP Staff Team** will assist you as soon as possible.\n\n"
+        "Thank you for your patience. 💚"
+    ),
+    color=0x57F287
+)
 
-        await channel.send(
-            embed=embed,
-            view=CloseTicketView()
-        )
+await channel.send(
+    embed=embed,
+    view=CloseTicketView()
+)
 
-        await interaction.response.send_message(
-            f"✅ Ticket created: {channel.mention}",
-            ephemeral=True
-        )
-
+await interaction.response.send_message(
+    f"✅ Ticket created: {channel.mention}",
+    ephemeral=True
+)
 
 class Tickets(commands.Cog):
     def __init__(self, bot):

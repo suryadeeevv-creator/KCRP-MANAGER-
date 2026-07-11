@@ -98,11 +98,9 @@ class Tickets(commands.Cog):
 
         await interaction.response.send_message(
             embed=embed,
-            view=TicketView()
-        )await interaction.response.send_message(
-            embed=embed,
-            view=TicketView()
-        )async def setup(bot):
+                        view=TicketView()
+        )
+
+async def setup(bot):
     await bot.add_cog(Tickets(bot))
-        async def setup(bot):
-    await bot.add_cog(Tickets(bot))
+    

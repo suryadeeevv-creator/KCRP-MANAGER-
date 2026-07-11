@@ -1,51 +1,55 @@
-import discord
-from discord.ext import commands
-from discord import app_commands
+@discord.ui.button(
+    label="Create Ticket",
+    emoji="🎫",
+    style=discord.ButtonStyle.green
+)
+async def create_ticket(
+    self,
+    interaction: discord.Interaction,
+    button: discord.ui.Button
+):
 
-class Tickets(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
+    guild = interaction.guild
 
-    @app_commands.command(
-        name="ticket-panel",
-        description="Create the KCRP ticket panel."
+    category = guild.get_channel(1525599685815832616)
+
+    founder_role = guild.get_role(1523613557424521290)
+
+    overwrites = {
+        guild.default_role: discord.PermissionOverwrite(view_channel=False),
+        interaction.user: discord.PermissionOverwrite(
+            view_channel=True,
+            send_messages=True,
+            read_message_history=True
+        ),
+        founder_role: discord.PermissionOverwrite(
+            view_channel=True,
+            send_messages=True,
+            read_message_history=True
+        )
+    }
+
+    channel = await guild.create_text_channel(
+        name=f"ticket-{interaction.user.name}",
+        category=category,
+        overwrites=overwrites
     )
-    async def ticket_panel(self, interaction: discord.Interaction):
-        embed = discord.Embed(
-            title="🎫 KCRP Support",
-            description=(
-                "Need help?\n\n"
-                "Click the **Create Ticket** button below.\n"
-                "Our staff will assist you as soon as possible."
-            ),
-            color=0x57F287
-        )
 
-        embed.set_footer(text="KCRP Manager")
-
-        await interaction.response.send_message(
-            embed=embed,
-            view=TicketView()
-        )
-
-class TicketView(discord.ui.View):
-    def __init__(self):
-        super().__init__(timeout=None)
-
-    @discord.ui.button(
-        label="Create Ticket",
-        emoji="🎫",
-        style=discord.ButtonStyle.green
+    embed = discord.Embed(
+        title="🎫 Ticket Created",
+        description=(
+            f"Hello {interaction.user.mention},\n\n"
+            "Your support ticket has been created successfully.\n\n"
+            "Please describe your issue in detail.\n\n"
+            "A member of the **KCRP Staff Team** will assist you as soon as possible.\n\n"
+            "Thank you for your patience. 💚"
+        ),
+        color=0x57F287
     )
-    async def create_ticket(
-        self,
-        interaction: discord.Interaction,
-        button: discord.ui.Button
-    ):
-        await interaction.response.send_message(
-            "🚧 Ticket system is coming in the next step!",
-            ephemeral=True
-        )
 
-async def setup(bot):
-    await bot.add_cog(Tickets(bot))
+    await channel.send(embed=embed)
+
+    await interaction.response.send_message(
+        f"✅ Your ticket has been created: {channel.mention}",
+        ephemeral=True
+    )

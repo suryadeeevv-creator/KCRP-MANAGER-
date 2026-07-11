@@ -2,6 +2,7 @@ import os
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+from database import setup_database
 
 load_dotenv()
 
@@ -15,7 +16,10 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def setup_hook():
+    await setup_database()
+
     await bot.load_extension("cogs.tickets")
+
     await bot.tree.sync()
 
 @bot.event

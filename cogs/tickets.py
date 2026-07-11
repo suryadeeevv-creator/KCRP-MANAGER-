@@ -169,7 +169,7 @@ await create_ticket_db(
     interaction.user.id
 )
 
-        embed = discord.Embed(
+embed = discord.Embed(
             title="🎫 Ticket Created",
             description=(
                 f"Hello {interaction.user.mention},\n\n"

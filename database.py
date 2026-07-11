@@ -81,16 +81,3 @@ async def save_settings(
         await db.commit()
 
 
-# ---------------- WARNINGS ---------------- #
-
-async def add_warning(
-    guild_id,
-    user_id,
-    moderator_id,
-    reason
-):
-    async with aiosqlite.connect(DATABASE) as db:
-        await db.execute("""
-        INSERT INTO warnings(
-            guild_id,
-           

@@ -109,23 +109,15 @@ async def user_has_ticket(guild, user):
                 return channel
 
     return None
-class TicketView(discord.ui.View):
-    def __init__(self):
-        super().__init__(timeout=None)
-
-    @discord.ui.button(
-        label="Create Ticket",
-        emoji="🎫",
-        style=discord.ButtonStyle.green
-    )
-    async def create_ticket(
+async def create_ticket(
         self,
         interaction: discord.Interaction,
         button: discord.ui.Button
     ):
-
+        
         guild = interaction.guild
         category = guild.get_channel(CATEGORY_ID)
+        
 
         overwrites = {
             guild.default_role: discord.PermissionOverwrite(view_channel=False),

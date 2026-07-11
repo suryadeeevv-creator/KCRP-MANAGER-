@@ -1,22 +1,77 @@
 import asyncio
+import aiosqlite
 import discord
 from discord.ext import commands
 from discord import app_commands
 
+DATABASE = "data/database.db"
+
 CATEGORY_ID = 1525599685815832616
 
 STAFF_ROLE_IDS = [
-    1523613557424521290,
-    1523613557424521288,
-    1523613557424521287,
-    1523897763484401806,
-    1523613557424521292,
-    1523616970824482826,
-    1523613557424521289,
-    1523897469568680066,
+    1523613557424521290,  # Founder
+    1523613557424521288,  # Server Administrator
+    1523613557424521287,  # Server Management
+    1523897763484401806,  # Owner
+    1523613557424521292,  # Senior Admin
+    1523616970824482826,  # General Admin
+    1523613557424521289,  # Helper Admin
+    1523897469568680066,  # Co Owner
 ]
+async def user_has_ticket(guild_id: int, user_id: int):
+    async with aiosqlite.connect(DATABASE) as db:
+        cursor = await db.execute(
+            """
+            SELECT channel_id
+            FROM tickets
+            WHERE guild_id = ?
+            AND owner_id = ?
+            AND status = 'open'
+            """,
+            (guild_id, user_id)
+        )
+
+        return await cursor.fetchone()
 
 
+async def create_ticket_db(
+    guild_id: int,
+    channel_id: int,
+    owner_id: int
+):
+    async with aiosqlite.connect(DATABASE) as db:
+        await db.execute(
+            """
+            INSERT INTO tickets(
+                guild_id,
+                channel_id,
+                owner_id,
+                status
+            )
+            VALUES(?, ?, ?, 'open')
+            """,
+            (
+                guild_id,
+                channel_id,
+                owner_id
+            )
+        )
+
+        await db.commit()
+
+
+async def close_ticket_db(channel_id: int):
+    async with aiosqlite.connect(DATABASE) as db:
+        await db.execute(
+            """
+            UPDATE tickets
+            SET status='closed'
+            WHERE channel_id=?
+            """,
+            (channel_id,)
+        )
+
+        await db.commit()
 class CloseTicketView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -39,7 +94,21 @@ class CloseTicketView(discord.ui.View):
         await asyncio.sleep(5)
         await interaction.channel.delete()
 
+async def user_has_ticket(guild, user):
+    async with aiosqlite.connect(DATABASE) as db:
+        cursor = await db.execute(
+            "SELECT channel_id FROM tickets WHERE owner_id=? AND status='open'",
+            (user.id,)
+        )
 
+        ticket = await cursor.fetchone()
+
+        if ticket:
+            channel = guild.get_channel(ticket[0])
+            if channel:
+                return channel
+
+    return None
 class TicketView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -76,11 +145,29 @@ class TicketView(discord.ui.View):
                     read_message_history=True
                 )
 
-        channel = await guild.create_text_channel(
-            name=f"ticket-{interaction.user.name}",
-            category=category,
-            overwrites=overwrites
+        existing = await user_has_ticket(guild.id, interaction.user.id)
+
+if existing:
+    channel = guild.get_channel(existing[0])
+
+    if channel:
+        await interaction.response.send_message(
+            f"❌ You already have an open ticket: {channel.mention}",
+            ephemeral=True
         )
+        return
+
+channel = await guild.create_text_channel(
+    name=f"ticket-{interaction.user.name.lower()}",
+    category=category,
+    overwrites=overwrites
+)
+
+await create_ticket_db(
+    guild.id,
+    channel.id,
+    interaction.user.id
+)
 
         embed = discord.Embed(
             title="🎫 Ticket Created",

@@ -9,7 +9,7 @@ from cogs.tickets import TicketView, CloseTicketView
 
 load_dotenv()
 
-TOKEN = os.getenv("TOKEN")
+TOKEN = MTUyNTU4ODA3OTIxNjMwMDE1Mg.GgWldB.jG-nrr09Vppv3XrJLIxxQJCzhSMSMyEH-aroQs
 
 intents = discord.Intents.default()
 intents.message_content = True

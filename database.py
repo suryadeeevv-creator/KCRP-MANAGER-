@@ -1,40 +1,17 @@
 import aiosqlite
 
-DATABASE = "data/database.db"
-
+DATABASE = "database.db"
 
 async def setup_database():
     async with aiosqlite.connect(DATABASE) as db:
-
-        # Server Settings
-        await db.execute("""
-        CREATE TABLE IF NOT EXISTS guild_settings(
-            guild_id INTEGER PRIMARY KEY,
-            ticket_category INTEGER,
-            transcript_channel INTEGER,
-            staff_role INTEGER,
-            ticket_count INTEGER DEFAULT 0
-        )
-        """)
-
-        # Tickets
         await db.execute("""
         CREATE TABLE IF NOT EXISTS tickets(
-            ticket_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            guild_id INTEGER,
-            channel_id INTEGER,
-            owner_id INTEGER,
-            claimed_by INTEGER,
-            status TEXT DEFAULT 'open'
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            channel_id INTEGER
         )
         """)
-
-        # Warnings
-        await db.execute("""
-        CREATE TABLE IF NOT EXISTS warnings(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            guild_id INTEGER,
-            user_id INTEGER,
+        await db.commit()            user_id INTEGER,
             moderator_id INTEGER,
             reason TEXT
         )

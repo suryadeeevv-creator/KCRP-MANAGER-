@@ -1,40 +1,33 @@
 import os
-import asyncio
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-
 from database import setup_database
-from cogs.tickets import TicketView, CloseTicketView
 
 load_dotenv()
 
-TOKEN = MTUyNTU4ODA3OTIxNjMwMDE1Mg.GgWldB.jG-nrr09Vppv3XrJLIxxQJCzhSMSMyEH-aroQs
+TOKEN = os.getenv("TOKEN")
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
-bot = commands.Bot(
-    command_prefix="!",
-    intents=intents,
-    help_command=None
-)
-
-COGS = [
-    "cogs.tickets",
-]
-
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def setup_hook():
-    # Database
     await setup_database()
+    await bot.tree.sync()
 
-    # Load cogs
-    for cog in COGS:
-        try:
-            await bot.load_extension(cog)
+@bot.event
+async def on_ready():
+    print(f"✅ Logged in as {bot.user}")
+
+@bot.tree.command(name="ping", description="Check if the bot is online")
+async def ping(interaction: discord.Interaction):
+    await interaction.response.send_message("🏓 Pong!")
+
+bot.run(TOKEN)            await bot.load_extension(cog)
             print(f"✅ Loaded {cog}")
         except Exception as e:
             print(f"❌ Failed to load {cog}: {e}")

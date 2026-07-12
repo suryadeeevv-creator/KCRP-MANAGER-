@@ -4,16 +4,22 @@ DATABASE = "database.db"
 
 async def setup_database():
     async with aiosqlite.connect(DATABASE) as db:
+        # Tickets table
         await db.execute("""
-        CREATE TABLE IF NOT EXISTS tickets(
+        CREATE TABLE IF NOT EXISTS tickets (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
             channel_id INTEGER
         )
         """)
-        await db.commit()            user_id INTEGER,
-            moderator_id INTEGER,
-            reason TEXT
+
+        # Guild settings table
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS guild_settings (
+            guild_id INTEGER PRIMARY KEY,
+            ticket_category INTEGER,
+            transcript_channel INTEGER,
+            staff_role INTEGER
         )
         """)
 
@@ -38,17 +44,15 @@ async def save_settings(
     staff_role: int
 ):
     async with aiosqlite.connect(DATABASE) as db:
-
         await db.execute("""
-        INSERT OR REPLACE INTO guild_settings(
+        INSERT OR REPLACE INTO guild_settings (
             guild_id,
             ticket_category,
             transcript_channel,
             staff_role
         )
         VALUES (?, ?, ?, ?)
-        """,
-        (
+        """, (
             guild_id,
             ticket_category,
             transcript_channel,
@@ -56,5 +60,3 @@ async def save_settings(
         ))
 
         await db.commit()
-
-
